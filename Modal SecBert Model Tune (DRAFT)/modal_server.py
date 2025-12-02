@@ -38,7 +38,7 @@ class Model:
 
 # Create web endpoint
 @app.function()
-@modal.web_endpoint(method="POST")
+@modal.fastapi_endpoint(method="POST")
 def api_endpoint(data: dict):
     prompt = data.get("prompt", "")
     max_tokens = data.get("max_tokens", 100)
