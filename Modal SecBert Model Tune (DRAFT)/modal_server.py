@@ -6,7 +6,7 @@ image = (
     .pip_install("vllm", "transformers", "torch")
 )
 
-app = modal.App("foundation-model", image=image)
+app = modal.App("SecBERT-model-training", image=image)
 
 # Download model during build
 @app.function(
@@ -19,11 +19,9 @@ def download_model():
 
 # Deploy inference class with GPU
 @app.cls(
-    gpu="A10G",  # or "A100", "H100"
-    secrets=[modal.Secret.from_name("huggingface-secret")],  # if model requires auth
-    # --- 🟢 THE FIX IS HERE ---
-    scaledown_window=300, # Changed from container_idle_timeout=300
-    # --------------------------
+    gpu="A10G",  # or "A100", "H100"
+    secrets=[modal.Secret.from_name("huggingface-secret")],  # if model requires auth
+    scaledown_window=300,  # Fixed: renamed from container_idle_timeout
 )
 class Model:
     @modal.enter()
