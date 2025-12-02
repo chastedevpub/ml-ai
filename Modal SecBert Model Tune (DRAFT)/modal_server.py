@@ -19,9 +19,11 @@ def download_model():
 
 # Deploy inference class with GPU
 @app.cls(
-    gpu="A10G",  # or "A100", "H100"
-    secrets=[modal.Secret.from_name("huggingface-secret")],  # if model requires auth
-    container_idle_timeout=300,
+    gpu="A10G",  # or "A100", "H100"
+    secrets=[modal.Secret.from_name("huggingface-secret")],  # if model requires auth
+    # --- 🟢 THE FIX IS HERE ---
+    scaledown_window=300, # Changed from container_idle_timeout=300
+    # --------------------------
 )
 class Model:
     @modal.enter()
@@ -43,6 +45,9 @@ def api_endpoint(data: dict):
     prompt = data.get("prompt", "")
     max_tokens = data.get("max_tokens", 100)
     
+    # Note: For production use, you might use Model.local() or Model.remote()
+    # directly on the class if you didn't need to pass a prompt/max_tokens.
+    # The current pattern is fine for simple usage.
     model = Model()
     response = model.generate.remote(prompt, max_tokens)
     
